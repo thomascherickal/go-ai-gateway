@@ -1,4 +1,4 @@
-# Personal Multi-Subscription Deployment Guide (`PERSONAL-DEPLOYMENT.md`)
+# Personal Multi-Subscription Deployment Guide (`personal-deployment.md`)
 
 This guide explains how to deploy **Go AI Gateway** for personal use when you hold API credits or subscriptions across multiple AI companies (**Anthropic**, **Google Gemini**, **xAI Grok**, **OpenAI**, **DeepSeek**, **Alibaba Qwen**, **Mistral**) alongside free/local options (**Cloudflare Workers AI** and local **Ollama**).
 
@@ -8,6 +8,15 @@ Instead of configuring API keys and spending limits separately in every IDE, CLI
 - Automatically **spills over to cheaper, free (Workers AI), or $0 local (Ollama) models** once a vendor reaches its monthly cap
 - Redacts your personal emails, keys, tokens, and IP addresses before prompts leave your machine
 - Persists your spend history and audit log locally across restarts (no database server required)
+
+> **One-Command Automation (`deploy-personal.sh`)**:
+> ```bash
+> ./deploy-personal.sh --init-only                     # Creates ~/.config/go-ai-gateway/env (chmod 600) with random tokens
+> # Edit ~/.config/go-ai-gateway/env to add your AI company API keys, then run one of:
+> ./deploy-personal.sh --mode local --install-service  # Local binary + systemd user service + FileStore
+> ./deploy-personal.sh --mode cloudflare               # Personal Worker + D1 + Workers AI Free Tier
+> ./deploy-personal.sh --mode pages                    # Personal Worker + Cloudflare Pages dashboard
+> ```
 
 ---
 

@@ -1,5 +1,7 @@
 # Deploying to Cloudflare Workers (TinyGo + D1 + Workers AI)
 
+> **Fastest Path**: Use [deploy-cloudflare.sh](../deploy-cloudflare.sh) (or [deploy-company.sh](../deploy-company.sh) for enterprise production) with your API keys in `.env` — see [Where & How to Deploy + Cloudflare Pages Live Demo Guide](cloudflare-pages-demo.md).
+
 ## Prerequisites
 
 - **Go** `1.24+`

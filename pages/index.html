@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Go AI Gateway — Cloudflare Pages Live Demo</title>
+  <style>
+    :root {
+      --bg: #080d16; --card: #111827; --border: #243044; --text: #e6edf7;
+      --muted: #93a4bd; --accent: #38bdf8; --ok: #22c55e; --warn: #f59e0b; --bad: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.45; }
+    header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; background: #0d1422; }
+    h1 { margin: 0; font-size: 18px; }
+    .sub { color: var(--muted); font-size: 13px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    input, select, textarea, button { background: #0b111d; color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: 13px; }
+    button { background: #17253b; border-color: #2d466d; cursor: pointer; font-weight: 600; }
+    button:hover { border-color: var(--accent); }
+    button.preset { background: #0f1d32; font-weight: 500; font-size: 12px; }
+    main { max-width: 1240px; margin: 0 auto; padding: 20px 24px; display: grid; gap: 18px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+    .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-val { font-size: 24px; font-weight: 700; margin-top: 4px; }
+    h2 { margin: 0 0 10px; font-size: 15px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; }
+    code { background: #0b111d; padding: 2px 5px; border-radius: 4px; font-size: 12px; }
+    .pill { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    .ok { background: rgba(34,197,94,0.15); color: var(--ok); }
+    .warn { background: rgba(245,158,11,0.15); color: var(--warn); }
+    .bad { background: rgba(239,68,68,0.15); color: var(--bad); }
+    pre { background: #0b111d; border: 1px solid var(--border); border-radius: 6px; padding: 10px; overflow-x: auto; font-size: 12px; margin: 8px 0 0; max-height: 360px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Go AI Gateway — Cloudflare Pages Live Demo</h1>
+      <div class="sub">Go + TinyGo + Cloudflare Workers/Pages + D1 + Workers AI + Multi-Vendor Routing</div>
+    </div>
+    <div class="row">
+      <input id="gatewayUrl" placeholder="Gateway URL (blank = same origin)" style="width:260px" />
+      <input id="adminToken" type="password" placeholder="Admin token" style="width:180px" />
+      <button onclick="loadDashboard()">Connect &amp; Refresh</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="statusBar" class="sub">Set your Gateway URL (or leave blank for same-origin Pages Functions) and Admin Token, then click Connect &amp; Refresh.</div>
+
+    <section class="grid">
+      <div class="card"><div class="kpi-label">Total Requests</div><div class="kpi-val" id="kReq">-</div></div>
+      <div class="card"><div class="kpi-label">Total Spend</div><div class="kpi-val" id="kSpend">-</div></div>
+      <div class="card"><div class="kpi-label">PII Findings</div><div class="kpi-val" id="kPII">-</div></div>
+      <div class="card"><div class="kpi-label">Blocked (Budget / PII)</div><div class="kpi-val" id="kBlocked">-</div></div>
+    </section>
+
+    <section class="card">
+      <h2>Interactive Demo Console</h2>
+      <div class="row" style="margin-bottom:10px">
+        <span class="sub">Quick Scenarios:</span>
+        <button class="preset" onclick="applyPreset('pii-redact')">1. PII Redaction (Email + SSN + Key)</button>
+        <button class="preset" onclick="applyPreset('pii-block')">2. PII Strict Block (Support)</button>
+        <button class="preset" onclick="applyPreset('code-route')">3. Auto Code Routing (Qwen Coder)</button>
+        <button class="preset" onclick="applyPreset('anthropic')">4. Anthropic / Claude Route</button>
+        <button class="preset" onclick="applyPreset('gemini')">5. Gemini / Antigravity Protocol</button>
+      </div>
+      <div class="row" style="margin-bottom:8px">
+        <select id="protocolSelect">
+          <option value="openai">OpenAI (/v1/chat/completions)</option>
+          <option value="anthropic">Anthropic (/v1/messages)</option>
+          <option value="gemini">Gemini (/v1beta/models/...:generateContent)</option>
+        </select>
+        <input id="teamKey" value="gw_platform_demo_key" placeholder="Team API Key" style="width:205px" />
+        <input id="toolName" value="pages-demo" placeholder="Tool Name" style="width:120px" />
+        <select id="modelSelect">
+          <option value="auto">auto (intelligent router)</option>
+          <option value="fast">fast (Meta Llama 3.1 8B)</option>
+          <option value="balanced">balanced (Meta Llama 3.3 70B)</option>
+          <option value="llama-4-scout">Meta Llama 4 Scout 17B</option>
+          <option value="coder">coder (Qwen 2.5 Coder 32B)</option>
+          <option value="reasoning">reasoning (DeepSeek R1 32B)</option>
+          <option value="claude-sonnet-4-5">Anthropic Claude Sonnet 4.5</option>
+          <option value="gemini-2.5-flash">Google Gemini 2.5 Flash</option>
+          <option value="grok-3">xAI Grok 3</option>
+          <option value="deepseek-chat">DeepSeek V3 Chat</option>
+          <option value="qwen-plus">Alibaba Qwen Plus</option>
+          <option value="gpt-4o-mini">OpenAI GPT-4o Mini</option>
+        </select>
+        <button onclick="sendDemo()">Run Request</button>
+      </div>
+      <textarea id="promptInput" rows="2" style="width:100%">Summarize ticket for alice@acme.com with SSN 123-45-6789 and token sk-proj-abcdefghijklmnopqrstuvwxyz1234.</textarea>
+      <pre id="testOutput">Click "Run Request" or pick a quick scenario above...</pre>
+    </section>
+
+    <div class="two-col">
+      <section class="card">
+        <h2>Per-Team Budgets &amp; Policies</h2>
+        <table>
+          <thead><tr><th>Team</th><th>Spent / Limit</th><th>Tier</th><th>PII</th><th>Status</th></tr></thead>
+          <tbody id="teamsBody"><tr><td colspan="5" class="sub">No data loaded</td></tr></tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>Per-Provider Spend vs. Monthly Caps</h2>
+        <table>
+          <thead><tr><th>Provider</th><th>Current Month Spend</th><th>Cap</th></tr></thead>
+          <tbody id="providersBody"><tr><td colspan="3" class="sub">No data loaded</td></tr></tbody>
+        </table>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>Audit Log (Never Stores Raw PII)</h2>
+      <table>
+        <thead><tr><th>Time</th><th>Team / Tool / Proto</th><th>Requested &rarr; Routed</th><th>PII</th><th>Tokens</th><th>Cost</th><th>Status</th></tr></thead>
+        <tbody id="auditBody"><tr><td colspan="7" class="sub">No audit entries loaded</td></tr></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    const fmtUSD = (micros) => "$" + (micros / 1e6).toFixed(6);
+    const params = new URLSearchParams(window.location.search);
+    const initialGw = params.get("gateway") || localStorage.getItem("gw_pages_url") || "";
+    document.getElementById("gatewayUrl").value = initialGw;
+    const savedTok = sessionStorage.getItem("gw_admin_token");
+    if (savedTok) document.getElementById("adminToken").value = savedTok;
+
+    function baseUrl() {
+      const val = document.getElementById("gatewayUrl").value.trim().replace(/\/+$/, "");
+      localStorage.setItem("gw_pages_url", val);
+      return val;
+    }
+
+    function applyPreset(name) {
+      if (name === "pii-redact") {
+        document.getElementById("protocolSelect").value = "openai";
+        document.getElementById("teamKey").value = "gw_platform_demo_key";
+        document.getElementById("modelSelect").value = "auto";
+        document.getElementById("promptInput").value = "Customer alice@acme.com reported an outage from 10.24.8.15; SSN 123-45-6789; token sk-proj-abcdefghijklmnopqrstuvwxyz1234.";
+      } else if (name === "pii-block") {
+        document.getElementById("protocolSelect").value = "openai";
+        document.getElementById("teamKey").value = "gw_support_demo_key";
+        document.getElementById("modelSelect").value = "balanced";
+        document.getElementById("promptInput").value = "Send reset link to bob@customer.example";
+      } else if (name === "code-route") {
+        document.getElementById("protocolSelect").value = "openai";
+        document.getElementById("teamKey").value = "gw_platform_demo_key";
+        document.getElementById("modelSelect").value = "auto";
+        document.getElementById("promptInput").value = "Refactor this Golang HTTP handler and optimize its SQL JOIN query.";
+      } else if (name === "anthropic") {
+        document.getElementById("protocolSelect").value = "anthropic";
+        document.getElementById("teamKey").value = "gw_platform_demo_key";
+        document.getElementById("modelSelect").value = "claude-sonnet-4-5";
+        document.getElementById("promptInput").value = "Draft a brief postmortem summary for incident INC-42.";
+      } else if (name === "gemini") {
+        document.getElementById("protocolSelect").value = "gemini";
+        document.getElementById("teamKey").value = "gw_platform_demo_key";
+        document.getElementById("modelSelect").value = "gemini-2.5-flash";
+        document.getElementById("promptInput").value = "List 3 best practices for edge caching on Cloudflare Workers.";
+      }
+    }
+
+    async function loadDashboard() {
+      const b = baseUrl();
+      const token = document.getElementById("adminToken").value.trim();
+      if (token) sessionStorage.setItem("gw_admin_token", token);
+      const headers = token ? { "Authorization": "Bearer " + token } : {};
+      try {
+        const healthRes = await fetch(b + "/healthz");
+        const health = await healthRes.json();
+        const [sumRes, teamsRes, auditRes, provRes] = await Promise.all([
+          fetch(b + "/admin/summary", { headers }),
+          fetch(b + "/admin/teams", { headers }),
+          fetch(b + "/admin/audit?limit=25", { headers }),
+          fetch(b + "/admin/providers", { headers }),
+        ]);
+        if (!sumRes.ok) {
+          document.getElementById("statusBar").textContent = "Health OK (" + health.store + "), but admin auth returned " + sumRes.status + ". Enter ADMIN_TOKEN.";
+          return;
+        }
+        const sum = await sumRes.json();
+        const teamsData = await teamsRes.json();
+        const auditData = await auditRes.json();
+        const provData = await provRes.json();
+
+        document.getElementById("statusBar").textContent =
+          "Connected to " + (b || window.location.origin) + " | store=" + health.store + " | updated " + new Date().toLocaleTimeString();
+        document.getElementById("kReq").textContent = sum.total_requests;
+        document.getElementById("kSpend").textContent = fmtUSD(sum.total_cost_micros);
+        document.getElementById("kPII").textContent = sum.total_pii_detected;
+        document.getElementById("kBlocked").textContent = (sum.blocked_budget + sum.blocked_pii);
+
+        document.getElementById("teamsBody").innerHTML = (teamsData.teams || []).map(t =>
+          "<tr><td><b>" + t.team_id + "</b><br><span class='sub'>" + t.team_name + "</span></td>" +
+          "<td>" + fmtUSD(t.spent_micros) + " / " + fmtUSD(t.monthly_limit_micros) + "</td>" +
+          "<td><code>" + t.max_tier + "</code></td>" +
+          "<td><code>" + t.pii_mode + "</code></td>" +
+          "<td><span class='pill " + (t.enabled ? "ok" : "bad") + "'>" + (t.enabled ? "enabled" : "disabled") + "</span></td></tr>"
+        ).join("") || "<tr><td colspan='5' class='sub'>No teams</td></tr>";
+
+        const spentMap = provData.provider_spend_micros || {};
+        const capMap = provData.provider_caps_micros || {};
+        const allProvs = Array.from(new Set([...Object.keys(spentMap), ...Object.keys(capMap)])).sort();
+        document.getElementById("providersBody").innerHTML = allProvs.map(p =>
+          "<tr><td><code>" + p + "</code></td><td>" + fmtUSD(spentMap[p] || 0) + "</td><td>" +
+          (capMap[p] !== undefined ? fmtUSD(capMap[p]) : "<span class='sub'>uncapped</span>") + "</td></tr>"
+        ).join("") || "<tr><td colspan='3' class='sub'>No provider spend recorded yet</td></tr>";
+
+        document.getElementById("auditBody").innerHTML = (auditData.entries || []).map(a => {
+          const cls = a.status === "ok" ? "ok" : (a.status === "upstream_error" ? "warn" : "bad");
+          return "<tr><td>" + new Date(a.created_at).toLocaleTimeString() + "</td>" +
+            "<td><b>" + a.team_id + "</b><br><span class='sub'>" + (a.tool_name || "-") + " · " + (a.inbound_protocol || "openai") + "</span></td>" +
+            "<td><code>" + a.requested_model + "</code> &rarr; <code>" + (a.routed_model || "-") + "</code><br><span class='sub'>" + (a.provider || "-") + " / " + (a.route_reason || "") + "</span></td>" +
+            "<td>" + a.pii_detected + " (" + a.pii_action + ")</td>" +
+            "<td>" + a.total_tokens + "</td>" +
+            "<td>" + fmtUSD(a.cost_micros) + "</td>" +
+            "<td><span class='pill " + cls + "'>" + a.status + "</span></td></tr>";
+        }).join("") || "<tr><td colspan='7' class='sub'>No audit entries yet</td></tr>";
+      } catch (e) {
+        document.getElementById("statusBar").textContent = "Connection error: " + e;
+      }
+    }
+
+    async function sendDemo() {
+      const b = baseUrl();
+      const proto = document.getElementById("protocolSelect").value;
+      const key = document.getElementById("teamKey").value.trim();
+      const model = document.getElementById("modelSelect").value;
+      const tool = document.getElementById("toolName").value.trim();
+      const content = document.getElementById("promptInput").value;
+      const out = document.getElementById("testOutput");
+      out.textContent = "Sending " + proto + " request to " + (b || window.location.origin) + "...";
+
+      let url = b + "/v1/chat/completions";
+      let headers = { "Content-Type": "application/json", "X-Tool-Name": tool };
+      let body = {};
+
+      if (proto === "anthropic") {
+        url = b + "/v1/messages";
+        headers["x-api-key"] = key;
+        headers["anthropic-version"] = "2023-06-01";
+        body = { model, max_tokens: 512, messages: [{ role: "user", content }] };
+      } else if (proto === "gemini") {
+        url = b + "/v1beta/models/" + encodeURIComponent(model) + ":generateContent";
+        headers["x-goog-api-key"] = key;
+        body = { contents: [{ role: "user", parts: [{ text: content }] }] };
+      } else {
+        headers["Authorization"] = "Bearer " + key;
+        body = { model, messages: [{ role: "user", content }] };
+      }
+
+      try {
+        const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
+        const txt = await res.text();
+        try { out.textContent = "HTTP " + res.status + "\n" + JSON.stringify(JSON.parse(txt), null, 2); }
+        catch { out.textContent = "HTTP " + res.status + "\n" + txt; }
+        loadDashboard();
+      } catch (e) {
+        out.textContent = "Request failed: " + e;
+      }
+    }
+  </script>
+</body>
+</html>
+

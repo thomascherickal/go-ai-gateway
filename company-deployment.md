@@ -1,6 +1,15 @@
-# Enterprise Deployment Guide (`COMPANY-DEPLOYMENT.md`)
+# Enterprise Deployment Guide (`company-deployment.md`)
 
 This guide covers deploying **Go AI Gateway** as a centralized, multi-team AI traffic control plane in an enterprise environment on **Cloudflare Workers**, **Cloudflare D1**, **Workers AI**, and external enterprise LLM accounts.
+
+> **One-Command Enterprise Automation (`deploy-company.sh`)**:
+> ```bash
+> ./deploy-company.sh --init-only                  # Creates hardened .env.company (chmod 600) with generated ADMIN_TOKEN
+> # Add enterprise vendor API keys to .env.company, then preview and deploy:
+> ./deploy-company.sh --dry-run
+> ./deploy-company.sh --teams-file teams.json      # Deploys Worker + D1 + secrets and provisions all teams
+> ```
+> `deploy-company.sh` enforces production guardrails (rejects placeholder `ADMIN_TOKEN` and blocks `SEED_DEMO_TEAMS=true`), delegates Wasm/D1/secrets deployment to [deploy-cloudflare.sh](deploy-cloudflare.sh), and saves any auto-generated team keys to `company-team-keys.txt` (`chmod 600`).
 
 ---
 

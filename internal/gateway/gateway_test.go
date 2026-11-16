@@ -441,7 +441,7 @@ func TestGatewayStreamingToolsAndCountTokens(t *testing.T) {
 						Type: "function",
 						Function: types.ToolCallFunction{
 							Name:      req.Tools[0].Function.Name,
-							Arguments: `{"path":"README.md"}`,
+							Arguments: `{"path":"readme.md"}`,
 						},
 					}},
 					FinishReason: "tool_calls",
@@ -475,7 +475,7 @@ func TestGatewayStreamingToolsAndCountTokens(t *testing.T) {
 			"stream": true,
 			"max_tokens": 512,
 			"tools": [{"name": "read_file", "description": "Read a file", "input_schema": {"type": "object"}}],
-			"messages": [{"role": "user", "content": "Read README.md"}]
+			"messages": [{"role": "user", "content": "Read readme.md"}]
 		}`
 		req := httptest.NewRequest(http.MethodPost, "/v1/messages", strings.NewReader(payload))
 		req.Header.Set("x-api-key", "gw_platform_demo_key")
@@ -540,6 +540,18 @@ func TestGatewayStreamingToolsAndCountTokens(t *testing.T) {
 		}
 		if !strings.Contains(recStream.Body.String(), "Done streaming.") {
 			t.Fatalf("unexpected gemini SSE body: %s", recStream.Body.String())
+		}
+	})
+
+	t.Run("CORS preflight for Cloudflare Pages demo", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodOptions, "/v1/chat/completions", nil)
+		rec := httptest.NewRecorder()
+		gw.ServeHTTP(rec, req)
+		if rec.Code != http.StatusNoContent {
+			t.Fatalf("OPTIONS status = %d, want 204", rec.Code)
+		}
+		if rec.Header().Get("Access-Control-Allow-Origin") != "*" {
+			t.Fatalf("missing CORS allow-origin header")
 		}
 	})
 }

@@ -43,10 +43,29 @@ curl -s http://localhost:9900/v1/chat/completions \
   }'
 ```
 
+## Quick Deploy Scripts (`.env` + Automated Scripts)
+
+```bash
+# 1. Enterprise production deployment (hardened guardrails + team manifest provisioning):
+./deploy-company.sh --init-only
+./deploy-company.sh --teams-file teams.json
+
+# 2. Personal multi-subscription deployment (local systemd or Cloudflare Free Tier):
+./deploy-personal.sh --init-only
+./deploy-personal.sh --mode local --install-service
+
+# 3. Direct Cloudflare Worker / Pages demo deployment:
+cp .env.example .env && chmod 600 .env
+./deploy-cloudflare.sh --target both --seed-demo
+```
+
 ## Documentation
 
-- [Enterprise Deployment Guide](COMPANY-DEPLOYMENT.md) — Production Cloudflare Workers, D1, Zero Trust, multi-team onboarding, and compliance
-- [Personal Multi-Subscription Deployment Guide](PERSONAL-DEPLOYMENT.md) — Running locally (`PERSONAL_MODE=true`) or on Cloudflare Free Tier with per-provider spend caps (`PROVIDER_LIMITS_USD`) and Ollama/Workers AI overflow
+- [Local Machine Demo Guide](local-deployment.md) — 2-minute local setup + 5-minute live `curl` walkthrough (PII, budgets, routing, Anthropic/Gemini/OpenAI protocols)
+- [Cloudflare Pages Demo & Deployment Bundle Guide](docs/cloudflare-pages-demo.md) — Where & how to deploy with `deploy-cloudflare.sh` + `.env` and run the live Cloudflare Pages demo
+- [Claude Desktop Deployment Instructions](claude-desktop-deployment.md) — MCP setup, project instructions, and safety playbook for Claude Desktop to deploy to Cloudflare
+- [Enterprise Deployment Guide](company-deployment.md) — Production Cloudflare Workers, D1, Zero Trust, multi-team onboarding, and compliance
+- [Personal Multi-Subscription Deployment Guide](personal-deployment.md) — Running locally (`PERSONAL_MODE=true`) or on Cloudflare Free Tier with per-provider spend caps (`PROVIDER_LIMITS_USD`) and Ollama/Workers AI overflow
 - [Architecture Guide](docs/architecture.md) — Request lifecycle, package layout, TinyGo/Wasm and D1 design decisions
 - [Providers, Models & Routing](docs/providers-and-routing.md) — Anthropic, Gemini, Grok, Meta, DeepSeek, Qwen, OpenAI, Mistral, Workers AI, and routing rules
 - [Budgets, PII Redaction & Audit Policy](docs/policies-budgets-pii.md) — Micro-dollar accounting, atomic D1 reservation, PII/secret detection, and audit guarantees

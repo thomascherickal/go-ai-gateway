@@ -4,6 +4,8 @@ node_modules/
 .dev.vars
 .env
 .env.personal
+.env.company
+company-team-keys.txt
 gateway-state.json
 
 

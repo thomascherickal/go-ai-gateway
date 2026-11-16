@@ -7,11 +7,12 @@
     "dev": "wrangler dev",
     "start": "wrangler dev",
     "deploy": "wrangler deploy",
+    "dev:pages": "wrangler pages dev --config wrangler.pages.jsonc",
+    "deploy:pages": "wrangler pages deploy --config wrangler.pages.jsonc",
     "db:migrate:local": "wrangler d1 migrations apply ai-gateway-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply ai-gateway-db --remote"
   },
   "devDependencies": {
-    "wrangler": "^3.109.2"
+    "wrangler": "^4.9.1"
   }
 }
-

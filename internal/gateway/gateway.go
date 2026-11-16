@@ -75,6 +75,14 @@ func New(cfg Config) *Gateway {
 }
 
 func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Team-Key, X-Admin-Token, X-Tool-Name, X-Gateway-Route, X-Gateway-Provider, X-Gateway-Strict-Provider, x-api-key, anthropic-version, x-goog-api-key")
+	w.Header().Set("Access-Control-Expose-Headers", "X-Request-ID, X-Gateway-Protocol, X-Gateway-Team, X-Gateway-Routed-Model, X-Gateway-Provider, X-Gateway-PII-Action, X-Gateway-PII-Detected, X-Gateway-Cost-Micros, X-Gateway-Remaining-Micros")
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 	g.mux.ServeHTTP(w, r)
 }
 
