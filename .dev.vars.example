@@ -1,0 +1,12 @@
+ADMIN_TOKEN=gw_admin_dev
+
+# Optional external vendor API keys (when unset, models gracefully fall back to Workers AI)
+# ANTHROPIC_API_KEY=
+# GEMINI_API_KEY=
+# XAI_API_KEY=
+# DEEPSEEK_API_KEY=
+# QWEN_API_KEY=
+# OPENAI_API_KEY=
+# MISTRAL_API_KEY=
+# UPSTREAM_BASE_URL=
+# UPSTREAM_API_KEY=

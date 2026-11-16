@@ -1,0 +1,23 @@
+{
+  "name": "go-ai-gateway",
+  "main": "./build/worker.mjs",
+  "compatibility_date": "2025-04-01",
+  "build": {
+    "command": "npm run build"
+  },
+  "ai": {
+    "binding": "AI"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ai-gateway-db",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "AI_GATEWAY_ID": ""
+  }
+}
+

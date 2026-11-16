@@ -1,0 +1,17 @@
+{
+  "name": "go-ai-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "go run github.com/syumai/workers-go/cmd/workers-assets-gen && tinygo build -o ./build/app.wasm -target wasm -no-debug ./...",
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply ai-gateway-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply ai-gateway-db --remote"
+  },
+  "devDependencies": {
+    "wrangler": "^3.109.2"
+  }
+}
+

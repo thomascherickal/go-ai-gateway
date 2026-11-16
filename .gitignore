@@ -1,0 +1,9 @@
+build/
+node_modules/
+.wrangler/
+.dev.vars
+.env
+.env.personal
+gateway-state.json
+
+
