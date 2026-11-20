@@ -18,7 +18,9 @@ type Config struct {
 	Router             *router.Router
 	Provider           provider.Provider
 	AdminTokenFunc     func() string
+	AuditorTokenFunc   func() string
 	ProviderLimitsFunc func() string
+	Features           *GatewayFeatures
 	NowFunc            func() time.Time
 }
 
@@ -28,6 +30,8 @@ type Gateway struct {
 	router       *router.Router
 	provider     provider.Provider
 	adminToken   func() string
+	auditorToken func() string
+	features     *GatewayFeatures
 	providerCaps *ProviderCapTracker
 	now          func() time.Time
 	seq          atomic.Uint64
@@ -45,11 +49,17 @@ func New(cfg Config) *Gateway {
 		adminFn = func() string { return "" }
 	}
 
+	auditorFn := cfg.AuditorTokenFunc
+	if auditorFn == nil {
+		auditorFn = func() string { return "" }
+	}
 	g := &Gateway{
 		store:        cfg.Store,
 		router:       cfg.Router,
 		provider:     cfg.Provider,
 		adminToken:   adminFn,
+		auditorToken: auditorFn,
+		features:     cfg.Features,
 		providerCaps: newProviderCapTracker(cfg.ProviderLimitsFunc),
 		now:          nowFn,
 		mux:          http.NewServeMux(),
@@ -67,6 +77,8 @@ func New(cfg Config) *Gateway {
 	g.mux.HandleFunc("/admin/teams", g.requireAdmin(g.handleAdminTeams))
 	g.mux.HandleFunc("/admin/teams/", g.requireAdmin(g.handleAdminTeamAction))
 	g.mux.HandleFunc("/admin/audit", g.requireAdmin(g.handleAdminAudit))
+	g.mux.HandleFunc("/admin/audit/export", g.requireAdmin(g.handleAdminAuditExport))
+	g.mux.HandleFunc("/admin/forecast", g.requireAdmin(g.handleAdminForecast))
 	g.mux.HandleFunc("/admin/summary", g.requireAdmin(g.handleAdminSummary))
 	g.mux.HandleFunc("/admin/providers", g.requireAdmin(g.handleAdminProviders))
 	return g

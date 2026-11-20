@@ -1,12 +1,12 @@
 package gateway
 
 import (
-	"crypto/subtle"
 	"errors"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/thomas/go-ai-gateway/internal/features"
 	"github.com/thomas/go-ai-gateway/internal/store"
 	"github.com/thomas/go-ai-gateway/internal/types"
 )
@@ -14,13 +14,19 @@ import (
 func (g *Gateway) requireAdmin(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		expected := strings.TrimSpace(g.adminToken())
-		if expected == "" {
+		auditor := strings.TrimSpace(g.auditorToken())
+		if expected == "" && auditor == "" {
 			writeOpenAIError(w, http.StatusForbidden, "admin_auth_error", "ADMIN_TOKEN is not configured", "admin_disabled")
 			return
 		}
-		provided := extractBearerOrHeader(r, "X-Admin-Token")
-		if len(provided) == 0 || subtle.ConstantTimeCompare([]byte(provided), []byte(expected)) != 1 {
+		auth := features.RBACAuthorizer{AdminToken: expected, AuditorToken: auditor}
+		role := auth.ResolveRole(extractBearerOrHeader(r, "X-Admin-Token"))
+		if role == features.RoleNone {
 			writeOpenAIError(w, http.StatusUnauthorized, "admin_auth_error", "invalid admin token", "unauthorized")
+			return
+		}
+		if !auth.Allowed(role, r.Method) {
+			writeOpenAIError(w, http.StatusForbidden, "admin_auth_error", "read-only auditor token cannot perform write actions", "forbidden")
 			return
 		}
 		next(w, r)
