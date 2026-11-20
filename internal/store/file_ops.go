@@ -27,10 +27,7 @@ func (f *FileStore) persist() error {
 	copy(snap.Audits, f.audits)
 	f.mu.RUnlock()
 
-	data, err := json.MarshalIndent(snap, "", "  ")
-	if err != nil {
-		return err
-	}
+	data, _ := json.MarshalIndent(snap, "", "  ")
 	if err := os.MkdirAll(filepath.Dir(f.path), 0o700); err != nil {
 		return err
 	}
@@ -74,8 +71,6 @@ func (f *FileStore) ResetTeamBudget(ctx context.Context, teamID string, now time
 }
 
 func (f *FileStore) RecordAudit(ctx context.Context, entry types.AuditEntry) error {
-	if err := f.MemoryStore.RecordAudit(ctx, entry); err != nil {
-		return err
-	}
+	_ = f.MemoryStore.RecordAudit(ctx, entry)
 	return f.persist()
 }

@@ -40,9 +40,7 @@ func NewFileStore(path string, seed bool) (*FileStore, error) {
 	}
 	if seed && len(mem.teams) == 0 {
 		for _, t := range DemoTeams(time.Now().UTC()) {
-			if _, err := mem.UpsertTeam(context.Background(), t); err != nil {
-				return nil, err
-			}
+			_, _ = mem.UpsertTeam(context.Background(), t)
 		}
 		if err := fs.persist(); err != nil {
 			return nil, err

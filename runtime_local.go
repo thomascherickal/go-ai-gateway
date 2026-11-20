@@ -45,10 +45,12 @@ func buildGateway() *gateway.Gateway {
 	})
 }
 
+var userHomeDir = os.UserHomeDir
+
 func initLocalStore(personalMode bool) store.Store {
 	dataFile := strings.TrimSpace(os.Getenv("GATEWAY_DATA_FILE"))
 	if dataFile == "" && personalMode {
-		if home, err := os.UserHomeDir(); err == nil && home != "" {
+		if home, err := userHomeDir(); err == nil && home != "" {
 			dataFile = filepath.Join(home, ".config", "go-ai-gateway", "state.json")
 		} else {
 			dataFile = "gateway-state.json"

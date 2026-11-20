@@ -13,7 +13,14 @@ type stubStep struct {
 	rowsAffected int64
 	columns      []string
 	rows         [][]driver.Value
+	err          error
+	rowsErr      error
 }
+
+type errRowsResult struct{ err error }
+
+func (e errRowsResult) LastInsertId() (int64, error) { return 0, e.err }
+func (e errRowsResult) RowsAffected() (int64, error) { return 0, e.err }
 
 type stubConnector struct {
 	steps []stubStep
@@ -45,6 +52,12 @@ func (c *stubConnector) ExecContext(_ context.Context, query string, _ []driver.
 	if err != nil {
 		return nil, err
 	}
+	if st.err != nil {
+		return nil, st.err
+	}
+	if st.rowsErr != nil {
+		return errRowsResult{err: st.rowsErr}, nil
+	}
 	return driver.RowsAffected(st.rowsAffected), nil
 }
 
@@ -52,6 +65,9 @@ func (c *stubConnector) QueryContext(_ context.Context, query string, _ []driver
 	st, err := c.nextStep(query)
 	if err != nil {
 		return nil, err
+	}
+	if st.err != nil {
+		return nil, st.err
 	}
 	return &stubRows{cols: st.columns, data: st.rows}, nil
 }

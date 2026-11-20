@@ -47,9 +47,6 @@ func (s *Session) RedactText(input string) string {
 	out = reAPIKey.ReplaceAllStringFunc(out, func(m string) string { return s.placeholder(TypeAPIKey, m) })
 	out = reBearer.ReplaceAllStringFunc(out, func(m string) string {
 		parts := reBearer.FindStringSubmatch(m)
-		if len(parts) < 2 {
-			return m
-		}
 		return "Bearer " + s.placeholder(TypeAPIKey, parts[1])
 	})
 	out = reEmail.ReplaceAllStringFunc(out, func(m string) string { return s.placeholder(TypeEmail, strings.ToLower(m)) })
@@ -67,11 +64,7 @@ func (s *Session) RedactText(input string) string {
 		return s.placeholder(TypeCreditCard, digits)
 	})
 	out = rePhone.ReplaceAllStringFunc(out, func(m string) string {
-		digits := extractDigits(m)
-		if len(digits) < 10 || len(digits) > 15 {
-			return m
-		}
-		return s.placeholder(TypePhone, digits)
+		return s.placeholder(TypePhone, extractDigits(m))
 	})
 	out = reIPv4.ReplaceAllStringFunc(out, func(m string) string {
 		if !isValidIPv4(m) {

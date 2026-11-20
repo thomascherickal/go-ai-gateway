@@ -17,4 +17,9 @@ func TestValidatorsEdgeCases(t *testing.T) {
 	if got := s.RedactText(""); got != "" {
 		t.Fatalf("expected empty string, got %q", got)
 	}
+	// Phone regex match with >15 digits should not be redacted as phone
+	longPhone := "+123 456-789-0123456789"
+	if got := s.RedactText(longPhone); got != longPhone {
+		t.Fatalf("expected >15 digit string unchanged, got %q", got)
+	}
 }

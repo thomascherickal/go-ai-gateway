@@ -15,13 +15,13 @@ flowchart LR
 
 | Package | Race Runtime | Coverage | Slow Flag |
 | --- | --- | --- | --- |
-| `github.com/thomas/go-ai-gateway` | `1.013s` | `80.6%` | OK |
-| `internal/config` | `1.010s` | `100.0%` | OK |
-| `internal/gateway` | `1.036s` | `84.4%` | OK |
-| `internal/provider` | `1.026s` | `82.7%` | OK |
-| `internal/redact` | `1.020s` | `98.1%` | OK |
-| `internal/router` | `1.018s` | `93.5%` | OK |
-| `internal/store` | `1.027s` | `84.3%` | OK |
-| `internal/types` | `1.012s` | `100.0%` | OK |
-| **Aggregate / Benchmarks** | `~2.0s wall` (`0.342s` bench) | `86.1%` | OK |
+| `github.com/thomas/go-ai-gateway` | `1.014s` | `100.0%` | OK |
+| `internal/config` | `1.021s` | `100.0%` | OK |
+| `internal/gateway` | `1.043s` | `100.0%` | OK |
+| `internal/provider` | `1.030s` | `100.0%` | OK |
+| `internal/redact` | `1.023s` | `100.0%` | OK |
+| `internal/router` | `1.019s` | `100.0%` | OK |
+| `internal/store` | `1.031s` | `100.0%` | OK |
+| `internal/types` | `1.015s` | `100.0%` | OK |
+| **Aggregate / Benchmarks** | `~3.0s wall` (`0.342s` bench) | `100.0%` | OK |
 

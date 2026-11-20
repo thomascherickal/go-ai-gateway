@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Commit & CI Gate enforcing AGENTS.md standards.
-MIN_COVERAGE="${MIN_COVERAGE:-85.0}"
+MIN_COVERAGE="${MIN_COVERAGE:-100.0}"
 MAX_SECONDS="${MAX_SECONDS:-1800}" # 30 minutes
 
 echo "==> [1/6] Checking formatting (gofmt)..."

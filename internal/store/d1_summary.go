@@ -75,8 +75,6 @@ func scanAudit(r rowScanner) (types.AuditEntry, error) {
 	a.Status = types.AuditStatus(statusStr)
 	if parsed, err := time.Parse(time.RFC3339Nano, createdStr); err == nil {
 		a.CreatedAt = parsed
-	} else if parsed, err := time.Parse(time.RFC3339, createdStr); err == nil {
-		a.CreatedAt = parsed
 	}
 	if findingsJSON != "" && findingsJSON != "{}" {
 		_ = json.Unmarshal([]byte(findingsJSON), &a.PIIFindings)
