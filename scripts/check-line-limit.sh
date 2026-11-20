@@ -11,7 +11,7 @@ while IFS= read -r -d '' file; do
     printf 'FAIL: %s has %d lines (limit %d)\n' "$file" "$lines" "$MAX_LINES" >&2
     FAILED=1
   fi
-done < <(find . -not -path './.git/*' -not -path './node_modules/*' -not -path './build/*' \
+done < <(find . -not -path './.git/*' -not -path './node_modules/*' -not -path './build/*' -not -path './builds/*' \
   \( -name '*.go' -o -name '*.sh' -o -name '*.mjs' -o -name '*.js' \) -print0)
 
 if (( FAILED == 0 )); then

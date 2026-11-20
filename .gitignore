@@ -9,3 +9,6 @@ company-team-keys.txt
 gateway-state.json
 
 
+
+# Cross-platform build outputs (generated via ./scripts/build-all.sh)
+builds/

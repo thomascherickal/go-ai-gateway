@@ -102,6 +102,11 @@ flowchart TD
 # 3. Direct Cloudflare Worker / Pages demo deployment:
 cp .env.example .env && chmod 600 .env
 ./deploy-cloudflare.sh --target both --seed-demo
+
+# 4. Cross-platform builds (Windows, Linux, ARM64, Android, iOS, Web) & dynamic launcher:
+./scripts/build-all.sh
+./scripts/run-gateway.sh          # Auto-detects OS/arch from builds/
+./scripts/run-gateway.sh --web    # Runs builds/web/app.wasm via Wrangler
 ```
 
 ## Documentation
@@ -127,4 +132,5 @@ flowchart LR
 - [Budgets, PII Redaction & Audit Policy](docs/policies-budgets-pii.md) — Micro-dollar accounting, atomic D1 reservation, PII/secret detection, and audit guarantees
 - [API Reference](docs/api-reference.md) — OpenAI/Anthropic/Gemini inbound endpoints, headers, SDK snippets, and Admin API
 - [Deploying to Cloudflare Workers](docs/deployment-cloudflare.md) — TinyGo Wasm build, D1 migrations, secrets, and `wrangler` deployment
+- [Cross-Platform Builds Guide](docs/cross-platform-builds.md) — Building `builds/` for Windows, Linux, ARM64, Android, iOS, and Web (Wasm) + dynamic launcher (`scripts/run-gateway.sh`)
 - [Project Metrics](metrics.md) | [Test Time Report](test-time-report.md) | [System Profile](system-profile.md) | [Next Steps](next-steps.md) | [License (AGPL-v3)](LICENSE)
