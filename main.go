@@ -4,7 +4,9 @@ import (
 	"github.com/syumai/workers-go"
 )
 
+var serveHandler = workers.Serve
+
 func main() {
 	gw := buildGateway()
-	workers.Serve(gw)
+	serveHandler(gw)
 }

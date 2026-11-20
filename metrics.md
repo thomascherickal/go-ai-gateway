@@ -5,14 +5,14 @@ Snapshot recorded on `2026-11-20` on `linux/amd64` (`Go 1.27.4`, `TinyGo 0.44.0`
 ```mermaid
 xychart-beta
   title "Statement Coverage by Package (%)"
-  x-axis ["types", "config", "redact", "router", "store", "gateway", "provider", "root"]
+  x-axis ["types", "config", "redact", "router", "gateway", "store", "provider", "root"]
   y-axis "Coverage %" 0 --> 100
-  bar [100.0, 100.0, 98.1, 93.5, 84.1, 83.5, 82.7, 70.1]
+  bar [100.0, 100.0, 98.1, 93.5, 84.4, 84.3, 82.7, 80.6]
 ```
 
 ```mermaid
 flowchart LR
-  M1["Tests: 100% Pass"] --> M2["Coverage: 85.2%"]
+  M1["Tests: 100% Pass"] --> M2["Coverage: 86.1%"]
   M2 --> M3["Max File: <= 100 Lines"]
   M3 --> M4["Wasm: 2.4 MB"]
   style M1 fill:#14532d,stroke:#4ade80,color:#f8fafc
@@ -26,7 +26,7 @@ flowchart LR
 | Metric | Value | Target |
 | --- | --- | --- |
 | Test Pass Rate | `100%` (8/8 packages) | `100%` |
-| Statement Coverage (aggregate) | `85.2%` (gate `>= 85.0%`) | `100%` (tracking Wasm/JS & defensive error branches) |
+| Statement Coverage (aggregate) | `86.1%` (gate `>= 85.0%`) | `100%` (tracking Wasm/JS & defensive error branches) |
 | Max Source/Test File Length | `<= 100` lines | `<= 100` lines |
 | Doc Colored Mermaid Compliance | `100%` (15/15 `.md` files) | `>= 1` per 200 words |
 | Test Suite Runtime (`-race`) | `~2.0s wall` (`8.16s` pkg sum) | `< 30 min` |
