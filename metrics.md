@@ -35,3 +35,15 @@ flowchart LR
 | `BenchmarkRouterResolve` | `598.9 ns/op` (`5 allocs`) | `< 5 us/op` |
 | License | `AGPL-v3` (Commercial: Thomas Cherickal) | `AGPL-v3` |
 
+## Line-Count Report (Grouped by Language, Format & Test Suite)
+
+| Group | Lines | Share |
+| --- | ---: | ---: |
+| Go (Source `*.go`) | `5,353` | `42.8%` |
+| Go (Test Suites `*_test.go`) | `1,865` | `14.8%` |
+| Markdown Documentation (`*.md`) | `2,179` | `17.3%` |
+| SQL / JSON / YAML / Config (`*.sql`, `*.json*`, `*.yml`, `Makefile`, `LICENSE`) | `1,826` | `14.5%` |
+| Shell Scripts (`*.sh`) | `864` | `6.9%` |
+| HTML / JS / MJS (`pages/`, `functions/`) | `487` | `3.9%` |
+| **Total Project Lines** | **`12,574`** | **`100.0%`** |
+

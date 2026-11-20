@@ -35,11 +35,11 @@ Project-wide rules and automation standards for all coding agents and contributo
 
 ## 4. Documentation & Project Files
 
-Every project must include and keep up to date (after every push):
+Every project must include and keep up to date (after every commit):
 
 - `readme.md` (both full documentation and a quick-start guide)
 - `next-steps.md` (reusable post-commit/push checklist)
-- `metrics.md` (project health, coverage, performance, and quality metrics)
+- `metrics.md` (project health, coverage, performance, quality metrics, and a tabular line-count report grouped by languages, formats, and test suites, with group totals and the total number of lines in the project)
 - `test-time-report.md` (live timing report tracking how long all tests take to run)
 - `system-profile.md` (CPU and GPU profiling results and resource-usage trends)
 
@@ -68,7 +68,7 @@ Run the following steps after each commit/push:
 6. Run language-specific linters, formatters, and static analysis checks (DRY/SOLID compliance).
 7. Profile CPU and GPU usage, verify no resource overload or performance regressions, and update `system-profile.md`.
 8. Confirm the commit/CI gate passed cleanly.
-9. Update `metrics.md` with the latest test, coverage, and performance metrics.
+9. Update `metrics.md` with the latest test, coverage, performance metrics, and the tabular line-count report (grouped by languages, formats, and test suites, with group totals and total project lines).
 10. Update `readme.md` (full docs and quick-start) to reflect any changes.
 11. Review and update `next-steps.md` with any follow-up actions for the next iteration.
 12. After all that is done, commit or push the changes to the repository.
