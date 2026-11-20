@@ -33,5 +33,6 @@ func defaultCatalog() []ModelSpec {
 	all = append(all, workersAICatalog()...)
 	all = append(all, anthropicGeminiGrokCatalog()...)
 	all = append(all, deepSeekQwenOpenAICatalog()...)
+	all = append(all, latestOpenCodeCatalogSpecs()...)
 	return all
 }

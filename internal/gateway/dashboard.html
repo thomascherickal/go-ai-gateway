@@ -81,18 +81,8 @@
           <option value="auto">auto (intelligent router)</option>
           <option value="fast">fast (Meta Llama 3.1 8B)</option>
           <option value="balanced">balanced (Meta Llama 3.3 70B)</option>
-          <option value="llama-4-scout">Meta Llama 4 Scout 17B</option>
           <option value="coder">coder (Qwen 2.5 Coder 32B)</option>
           <option value="reasoning">reasoning (DeepSeek R1 32B)</option>
-          <option value="claude-sonnet-4-5">Anthropic Claude Sonnet 4.5</option>
-          <option value="claude-haiku-4-5">Anthropic Claude Haiku 4.5</option>
-          <option value="gemini-2.5-flash">Google Gemini 2.5 Flash</option>
-          <option value="gemini-2.5-pro">Google Gemini 2.5 Pro</option>
-          <option value="grok-3">xAI Grok 3</option>
-          <option value="grok-3-mini">xAI Grok 3 Mini</option>
-          <option value="deepseek-chat">DeepSeek V3 Chat</option>
-          <option value="qwen-plus">Alibaba Qwen Plus</option>
-          <option value="gpt-4o-mini">OpenAI GPT-4o Mini</option>
         </select>
         <button onclick="sendTest()">Send Prompt</button>
       </div>
@@ -113,6 +103,24 @@
     const fmtUSD = (micros) => "$" + (micros / 1e6).toFixed(6);
     const saved = sessionStorage.getItem("gw_admin_token");
     if (saved) document.getElementById("adminToken").value = saved;
+
+    async function populateModels() {
+      try {
+        const res = await fetch("/v1/models");
+        if (!res.ok) return;
+        const body = await res.json();
+        const sel = document.getElementById("modelSelect");
+        const existing = new Set(Array.from(sel.options).map(o => o.value));
+        (body.data || []).forEach(m => {
+          if (existing.has(m.id)) return;
+          const opt = document.createElement("option");
+          opt.value = m.id;
+          opt.textContent = m.id + " (" + (m.owned_by || "gateway") + " / " + (m.tier || "balanced") + ")";
+          sel.appendChild(opt);
+        });
+      } catch {}
+    }
+    populateModels();
 
     async function loadDashboard() {
       const token = document.getElementById("adminToken").value.trim();
