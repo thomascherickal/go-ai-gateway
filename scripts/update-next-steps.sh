@@ -27,16 +27,16 @@ SOURCE_LABEL="AI-generated"
 if [[ "$(printf '%s\n' "$AI_LIST" | grep -cE '^[[:space:]]*[0-9]+\.' || true)" -lt 10 ]]; then
   SOURCE_LABEL="Fallback (configure GEMINI_API_KEY, ANTHROPIC_API_KEY, OPENAI_API_KEY, or OLLAMA_BASE_URL for live AI)"
   AI_LIST="$(cat <<'EOF'
-1. Add per-team token-bucket rate limiting (RPM/TPM) backed by Cloudflare D1 or Durable Objects.
-2. Add semantic response caching with configurable TTL for identical redacted prompts.
-3. Add OpenTelemetry (OTLP) trace and latency histogram export for upstream providers.
-4. Add webhook alerts when a team reaches 80% or 100% of its monthly budget.
-5. Add streaming SSE pass-through directly from upstream providers to reduce time-to-first-token.
-6. Add multi-region D1 read-replica awareness and automated audit-log archival to R2.
-7. Add custom regex and keyword DLP rules configurable per team via `/admin/teams`.
-8. Add RBAC scopes for read-only auditor tokens vs. full admin control-plane tokens.
-9. Add automatic circuit breaker tripping when an upstream provider exceeds error thresholds.
-10. Add interactive cost-forecasting charts and CSV/JSON audit export to the dashboard UI.
+1. Wire `internal/features` (rate limiter, response cache, circuit breaker, DLP, alerts) directly into `Gateway` config and request pipeline.
+2. Expose `/admin/audit/export?format=csv|json` and `/admin/forecast` HTTP endpoints backed by `internal/features/export.go`.
+3. Add `AUDITOR_TOKEN` read-only RBAC enforcement in `internal/gateway/admin.go` using `internal/features/rbac.go`.
+4. Add prompt-injection and jailbreak heuristic detection alongside PII redaction in `internal/redact`.
+5. Add Cloudflare Durable Objects adapter for globally consistent sub-millisecond RPM/TPM rate limiting.
+6. Add interactive cost-forecasting charts and CSV/JSON export download buttons to the embedded dashboard UI.
+7. Add per-team model allowlists/denylists (e.g. restricting teams to specific approved vendor models).
+8. Add scheduled Cloudflare Worker Cron Trigger to archive `audit_logs` to R2 as daily NDJSON snapshots.
+9. Add mTLS / Cloudflare Zero Trust JWT header verification for enterprise `/admin/*` and `/v1/*` routes.
+10. Add automated load-testing suite (`k6` or Go `testing.B` concurrent HTTP benchmark) to CI with p95 latency gates.
 EOF
 )"
 fi
