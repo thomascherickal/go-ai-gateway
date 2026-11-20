@@ -70,3 +70,4 @@ generate_ai_suggestions() {
   fi
   printf '%s' "$out"
 }
+
