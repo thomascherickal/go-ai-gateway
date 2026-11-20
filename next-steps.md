@@ -1,11 +1,11 @@
 # Post-Commit & Post-Push Checklist (`next-steps.md`)
 
-Reusable checklist executed after every commit and push in `go-ai-gateway`.
+Reusable checklist and AI-generated roadmap updated automatically on every commit.
 
 ```mermaid
 flowchart LR
-  A["1. Run Tests & Race"] --> B["2. Check Coverage & Gate"]
-  B --> C["3. Verify 100-Line & Mermaid"]
+  A["1. Run Tests & Race"] --> B["2. 100% Coverage Gate"]
+  B --> C["3. 100-Line & Mermaid"]
   C --> D["4. Profile CPU/GPU"]
   D --> E["5. Update Docs & Push"]
   style A fill:#1e3a5f,stroke:#38bdf8,color:#f8fafc
@@ -15,18 +15,36 @@ flowchart LR
   style E fill:#1e293b,stroke:#94a3b8,color:#f8fafc
 ```
 
-## Checklist
+## Post-Commit Checklist
 
-1. Verify all unit, integration, smoke, E2E, security, and benchmark tests pass (`go test -race -count=1 ./...`).
-2. Confirm coverage meets the CI gate and work toward 100% statement coverage with zero regressions.
-3. Verify total test runtime is under 30 minutes and update `test-time-report.md`.
-4. Verify all source and test files are <= 100 lines (`./scripts/check-line-limit.sh`) and all docs satisfy the Mermaid rule (`./scripts/check-docs-mermaid.sh`).
-5. Review for duplicate code, dead code, and per-commit optimizations.
-6. Run `gofmt -l .`, `go vet ./...`, and `bash -n`.
-7. Profile CPU/GPU usage and update `system-profile.md`.
-8. Confirm `./scripts/check-gate.sh` and `.githooks/pre-commit` pass cleanly.
-9. Update `metrics.md` with latest coverage, latency, and binary size metrics.
-10. Update `readme.md` for any architectural or CLI changes.
-11. Review this checklist for next-iteration follow-ups (raising statement coverage to 100%).
-12. Commit and push changes to `origin/main`.
+1. Verify all tests pass (`go test -race -count=1 ./...`) with **100.0%** statement coverage.
+2. Verify test runtime stays under 30 minutes and update `test-time-report.md`.
+3. Verify all source/test files are `<= 100` lines and docs meet the colored Mermaid rule.
+4. Run `gofmt`, `go vet`, `bash -n`, and CPU/GPU profiling (`system-profile.md`).
+5. Update `metrics.md`, `readme.md`, and confirm `./scripts/check-gate.sh` passes cleanly.
 
+## Next 10 AI-Generated Improvements & Feature Additions
+
+_Updated: 2026-11-20 21:20 UTC (Fallback (configure GEMINI_API_KEY, ANTHROPIC_API_KEY, OPENAI_API_KEY, or OLLAMA_BASE_URL for live AI))_
+
+```mermaid
+flowchart LR
+  Diff["Staged Diff"] --> AI["AI Roadmap Generator"]
+  AI --> File["next-steps.md"]
+  File --> Stage["git add next-steps.md"]
+  style Diff fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style AI fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style File fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Stage fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
+
+1. Add per-team token-bucket rate limiting (RPM/TPM) backed by Cloudflare D1 or Durable Objects.
+2. Add semantic response caching with configurable TTL for identical redacted prompts.
+3. Add OpenTelemetry (OTLP) trace and latency histogram export for upstream providers.
+4. Add webhook alerts when a team reaches 80% or 100% of its monthly budget.
+5. Add streaming SSE pass-through directly from upstream providers to reduce time-to-first-token.
+6. Add multi-region D1 read-replica awareness and automated audit-log archival to R2.
+7. Add custom regex and keyword DLP rules configurable per team via `/admin/teams`.
+8. Add RBAC scopes for read-only auditor tokens vs. full admin control-plane tokens.
+9. Add automatic circuit breaker tripping when an upstream provider exceeds error thresholds.
+10. Add interactive cost-forecasting charts and CSV/JSON audit export to the dashboard UI.
