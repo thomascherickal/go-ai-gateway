@@ -40,4 +40,20 @@ func TestRouterHelpersAndFallbacks(t *testing.T) {
 	if EstimateTextTokens("") != 0 || EstimateTextTokens("hello world") <= 0 {
 		t.Fatalf("unexpected EstimateTextTokens")
 	}
+	if EstimateMessagesTokens(nil) < 0 {
+		t.Fatalf("expected non-negative tokens for nil messages")
+	}
+	if ComputeCostMicros(ModelSpec{}, 0, 0) != 0 {
+		t.Fatalf("expected 0 cost for zero tokens")
+	}
+
+	// Fallback when no providers are available
+	rNone := New(Options{IsProviderAvailable: func(string) bool { return false }})
+	if _, ok := rNone.findAvailableFallback(ModelSpec{ID: "x", Tier: types.TierReasoning}, types.TierFast); ok {
+		t.Fatalf("expected no fallback when no providers available")
+	}
+	// Fallback clamping tier when chain has no available fallback
+	if fb, ok := r.findAvailableFallback(ModelSpec{ID: "orphan", Tier: types.TierReasoning}, types.TierFast); !ok || fb.Tier != types.TierFast {
+		t.Fatalf("expected clamped fast fallback, got %+v ok=%v", fb, ok)
+	}
 }
