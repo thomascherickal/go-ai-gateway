@@ -1,0 +1,85 @@
+package gateway
+
+import (
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/thomas/go-ai-gateway/internal/types"
+)
+
+func (g *Gateway) handleRoot(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		writeOpenAIError(w, http.StatusNotFound, "not_found", "route not found", "")
+		return
+	}
+	if strings.Contains(r.Header.Get("Accept"), "application/json") {
+		writeJSON(w, http.StatusOK, map[string]any{
+			"service":  "go-ai-gateway",
+			"store":    g.store.BackendName(),
+			"provider": g.provider.Name(),
+			"endpoints": []string{
+				"POST /v1/chat/completions",
+				"POST /v1/messages",
+				"POST /v1beta/models/{model}:generateContent",
+				"GET /v1/models",
+				"GET /healthz",
+				"GET|POST /admin/teams",
+				"GET /admin/audit",
+				"GET /admin/summary",
+			},
+		})
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte(dashboardHTML))
+}
+
+func (g *Gateway) handleHealth(w http.ResponseWriter, _ *http.Request) {
+	writeJSON(w, http.StatusOK, map[string]any{
+		"status":   "ok",
+		"store":    g.store.BackendName(),
+		"provider": g.provider.Name(),
+		"time":     g.now().Format(time.RFC3339),
+	})
+}
+
+func (g *Gateway) handleModels(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeOpenAIError(w, http.StatusMethodNotAllowed, "invalid_request_error", "method not allowed", "")
+		return
+	}
+	specs := g.router.Catalog()
+	type modelEntry struct {
+		ID                string          `json:"id"`
+		Object            string          `json:"object"`
+		OwnedBy           string          `json:"owned_by"`
+		Tier              types.ModelTier `json:"tier"`
+		Aliases           []string        `json:"aliases,omitempty"`
+		InputMicrosPer1M  int64           `json:"input_micros_per_1m"`
+		OutputMicrosPer1M int64           `json:"output_micros_per_1m"`
+		Description       string          `json:"description"`
+	}
+	data := make([]modelEntry, 0, len(specs)+1)
+	data = append(data, modelEntry{
+		ID:          "auto",
+		Object:      "model",
+		OwnedBy:     "go-ai-gateway",
+		Tier:        types.TierBalanced,
+		Description: "Automatic complexity, code, and cost-aware router",
+	})
+	for _, s := range specs {
+		data = append(data, modelEntry{
+			ID:                s.ID,
+			Object:            "model",
+			OwnedBy:           s.Provider,
+			Tier:              s.Tier,
+			Aliases:           s.Aliases,
+			InputMicrosPer1M:  s.InputMicrosPer1M,
+			OutputMicrosPer1M: s.OutputMicrosPer1M,
+			Description:       s.Description,
+		})
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"object": "list", "data": data})
+}

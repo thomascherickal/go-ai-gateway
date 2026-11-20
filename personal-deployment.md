@@ -22,9 +22,33 @@ Instead of configuring API keys and spending limits separately in every IDE, CLI
 
 ## Option A: Local Machine / Home Server (`PERSONAL_MODE=true`)
 
+```mermaid
+flowchart LR
+  Tools["IDEs & CLIs"] --> GW["Personal Gateway"]
+  GW --> Caps["Provider Caps"]
+  Caps --> Paid["Anthropic / OpenAI"]
+  Caps --> Free["Workers AI / Ollama"]
+  style Tools fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style GW fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style Caps fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Paid fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style Free fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+```
+
 Best if you want everything running on `localhost:9900` (laptop, Mac Mini, home lab, or personal VPS) with zero cloud setup.
 
 ### 1. Create Your Personal Env File
+
+```mermaid
+flowchart LR
+  Init["--init-only"] --> Env["~/.config/.../env"]
+  Env --> Chmod["chmod 600"]
+  Chmod --> Load["config.LoadEnv"]
+  style Init fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Env fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Chmod fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style Load fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
 
 Create `~/.config/go-ai-gateway/env` (or `.env.personal` in the project directory) with restricted permissions (`chmod 600`):
 
@@ -76,6 +100,17 @@ Your personal gateway starts on `http://localhost:9900` (change via `PORT=8080`)
 
 ### 3. Run in the Background (`systemd` user service on Linux)
 
+```mermaid
+flowchart LR
+  Bin["go-ai-gateway"] --> Svc["systemd --user"]
+  Svc --> Port["localhost:9900"]
+  Port --> FS["state.json"]
+  style Bin fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Svc fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style Port fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style FS fill:#fef9c3,stroke:#ca8a04,color:#713f12
+```
+
 ```ini
 # ~/.config/systemd/user/go-ai-gateway.service
 [Unit]
@@ -99,6 +134,17 @@ systemctl --user enable --now go-ai-gateway
 ---
 
 ## Option B: Personal Cloudflare Workers Free Tier (Zero-Server, Multi-Device)
+
+```mermaid
+flowchart LR
+  Dev["Laptop / Phone"] --> Edge["Cloudflare Worker"]
+  Edge --> D1["D1 Free Tier"]
+  Edge --> WAI["Workers AI Neurons"]
+  style Dev fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Edge fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style D1 fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style WAI fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+```
 
 Best if you want your personal gateway reachable from your laptop, phone, and remote servers without keeping a machine running at home.
 
@@ -144,6 +190,15 @@ curl -X POST https://go-ai-gateway.<your-subdomain>.workers.dev/admin/teams \
 
 ## Configuring Your Personal Tools (What Works vs. What Doesn't)
 
+```mermaid
+flowchart TD
+  GW["Personal Gateway"] --> OK["CLI / IDE / SDKs"]
+  GW -.-> NO["Consumer Web Apps"]
+  style GW fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style OK fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style NO fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+```
+
 ### Supported Developer Tools & Coding Agents
 
 The gateway supports **SSE streaming**, **tool/function calling** (`tools`, `tool_use`, `tool_result`, `functionDeclarations`), and **`POST /v1/messages/count_tokens`**, so developer CLIs, IDEs, and SDKs work directly:
@@ -169,6 +224,17 @@ The gateway supports **SSE streaming**, **tool/function calling** (`tools`, `too
 ---
 
 ## Monitoring Personal Spend & Provider Caps
+
+```mermaid
+flowchart LR
+  Req["Request"] --> Check["Cap Reached?"]
+  Check -- "No" --> Vendor["Primary Vendor"]
+  Check -- "Yes" --> Overflow["Workers AI / Ollama"]
+  style Req fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Check fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Vendor fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style Overflow fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
 
 - **Web Dashboard**: Open `http://localhost:9900/`, enter your `ADMIN_TOKEN`, and inspect spend, PII redactions, and recent calls.
 - **Per-Provider Cap Status**:

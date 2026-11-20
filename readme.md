@@ -6,6 +6,21 @@
 
 ## Key Capabilities
 
+```mermaid
+flowchart LR
+  SDK["SDK Clients"] --> GW["Go AI Gateway"]
+  GW --> PII["PII Redaction"]
+  PII --> BUD["Budget Gate"]
+  BUD --> RT["Model Router"]
+  RT --> UP["AI Providers"]
+  style SDK fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style GW fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style PII fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style BUD fill:#ffedd5,stroke:#ea580c,color:#7c2d12
+  style RT fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style UP fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+```
+
 - **Multi-Protocol Inbound Compatibility**:
   - OpenAI Chat Completions: `POST /v1/chat/completions`
   - Anthropic Messages API: `POST /v1/messages`
@@ -22,6 +37,19 @@
   - Immutable `audit_logs` records for every allowed, blocked, or failed request (logging finding counts and redacted prompt SHA-256 hashes — never raw PII) plus a built-in web dashboard at `/`.
 
 ## Quick Start (Local Standalone Mode)
+
+```mermaid
+flowchart LR
+  Run["go run ."] --> Port["localhost:9900"]
+  Port --> UI["Dashboard UI"]
+  Port --> API["OpenAI / Anthropic / Gemini"]
+  API --> Mock["Local Mock or Live Keys"]
+  style Run fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Port fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style UI fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style API fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Mock fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+```
 
 ```bash
 go test -race ./...
@@ -45,6 +73,23 @@ curl -s http://localhost:9900/v1/chat/completions \
 
 ## Quick Deploy Scripts (`.env` + Automated Scripts)
 
+```mermaid
+flowchart TD
+  Env[".env / .env.company"] --> C["deploy-company.sh"]
+  Env --> P["deploy-personal.sh"]
+  Env --> CF["deploy-cloudflare.sh"]
+  C --> Prod["Prod Worker + D1"]
+  P --> Pers["Local or Free Tier"]
+  CF --> Demo["Worker + Pages Demo"]
+  style Env fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style C fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style P fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style CF fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Prod fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style Pers fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+  style Demo fill:#ffedd5,stroke:#ea580c,color:#7c2d12
+```
+
 ```bash
 # 1. Enterprise production deployment (hardened guardrails + team manifest provisioning):
 ./deploy-company.sh --init-only
@@ -61,6 +106,17 @@ cp .env.example .env && chmod 600 .env
 
 ## Documentation
 
+```mermaid
+flowchart LR
+  Docs["Documentation"] --> Dep["Deploy Guides"]
+  Docs --> Ref["API & Architecture"]
+  Docs --> Gov["Metrics & Profiles"]
+  style Docs fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Dep fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style Ref fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style Gov fill:#fef9c3,stroke:#ca8a04,color:#713f12
+```
+
 - [Local Machine Demo Guide](local-deployment.md) — 2-minute local setup + 5-minute live `curl` walkthrough (PII, budgets, routing, Anthropic/Gemini/OpenAI protocols)
 - [Cloudflare Pages Demo & Deployment Bundle Guide](docs/cloudflare-pages-demo.md) — Where & how to deploy with `deploy-cloudflare.sh` + `.env` and run the live Cloudflare Pages demo
 - [Claude Desktop Deployment Instructions](claude-desktop-deployment.md) — MCP setup, project instructions, and safety playbook for Claude Desktop to deploy to Cloudflare
@@ -71,3 +127,4 @@ cp .env.example .env && chmod 600 .env
 - [Budgets, PII Redaction & Audit Policy](docs/policies-budgets-pii.md) — Micro-dollar accounting, atomic D1 reservation, PII/secret detection, and audit guarantees
 - [API Reference](docs/api-reference.md) — OpenAI/Anthropic/Gemini inbound endpoints, headers, SDK snippets, and Admin API
 - [Deploying to Cloudflare Workers](docs/deployment-cloudflare.md) — TinyGo Wasm build, D1 migrations, secrets, and `wrangler` deployment
+- [Project Metrics](metrics.md) | [Test Time Report](test-time-report.md) | [System Profile](system-profile.md) | [Next Steps](next-steps.md) | [License (AGPL-v3)](LICENSE)

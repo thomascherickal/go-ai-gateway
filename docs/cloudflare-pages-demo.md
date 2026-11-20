@@ -6,6 +6,19 @@ This guide explains **where** each component runs, **how** to deploy in one comm
 
 ## 1. Where to Deploy (Choose Your Target)
 
+```mermaid
+flowchart TD
+  Sh["deploy-cloudflare.sh"] --> W["--target worker"]
+  Sh --> P["--target pages"]
+  Sh --> B["--target both"]
+  Sh --> L["--target local"]
+  style Sh fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style W fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style P fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style B fill:#ffedd5,stroke:#ea580c,color:#7c2d12
+  style L fill:#fef9c3,stroke:#ca8a04,color:#713f12
+```
+
 | `--target` | Where It Runs | Best For | URLs Created |
 | --- | --- | --- | --- |
 | **`worker`** *(default)* | Cloudflare Workers + D1 + Workers AI | Production enterprise or personal API gateway | `https://<worker>.workers.dev` |
@@ -22,6 +35,21 @@ This guide explains **where** each component runs, **how** to deploy in one comm
 ---
 
 ## 2. One-Command Deployment with `.env` (`deploy-cloudflare.sh`)
+
+```mermaid
+flowchart LR
+  Env[".env"] --> Test["go test"]
+  Test --> Wasm["TinyGo Wasm"]
+  Wasm --> D1["D1 Migrate"]
+  D1 --> Sec["Upload Secrets"]
+  Sec --> Live["Deploy & Verify"]
+  style Env fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Test fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Wasm fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style D1 fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+  style Sec fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style Live fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
 
 ### Step 1: Create `.env` with Your API Keys
 
@@ -69,6 +97,19 @@ Choose one:
 
 ## 3. How to Demo on Cloudflare Pages
 
+```mermaid
+flowchart LR
+  UI["Pages Demo UI"] --> S1["PII Redact / Block"]
+  UI --> S2["Auto Code Route"]
+  UI --> S3["Anthropic / Gemini"]
+  UI --> S4["Audit & Budgets"]
+  style UI fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style S1 fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style S2 fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style S3 fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style S4 fill:#fef9c3,stroke:#ca8a04,color:#713f12
+```
+
 Open your deployed Pages URL (`https://<PAGES_PROJECT_NAME>.pages.dev`):
 
 1. **Connect the Dashboard**:
@@ -94,6 +135,15 @@ Open your deployed Pages URL (`https://<PAGES_PROJECT_NAME>.pages.dev`):
 ---
 
 ## 4. Cleaning Up After a Demo
+
+```mermaid
+flowchart LR
+  Demo["Demo Keys Active"] --> Del["DELETE team_budgets"]
+  Del --> Prod["Production Ready"]
+  style Demo fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Del fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style Prod fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
 
 If you used `--seed-demo`, remove or disable the public demo keys before using the deployment for real workloads:
 

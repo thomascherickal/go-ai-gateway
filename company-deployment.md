@@ -15,6 +15,21 @@ This guide covers deploying **Go AI Gateway** as a centralized, multi-team AI tr
 
 ## 1. Enterprise Topology
 
+```mermaid
+flowchart TD
+  Apps["Internal Apps & CI"] --> Edge["Cloudflare Worker"]
+  Edge --> D1B["D1 team_budgets"]
+  Edge --> PII["PII Scanner"]
+  Edge --> RT["Model Router"]
+  Edge --> D1A["D1 audit_logs"]
+  style Apps fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Edge fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style D1B fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style PII fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style RT fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style D1A fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+```
+
 ```
 Internal Apps, CI/CD, Support Tools, IDE Agents
   ├─ OpenAI SDK   ──▶ POST /v1/chat/completions
@@ -33,6 +48,17 @@ Internal Apps, CI/CD, Support Tools, IDE Agents
 
 ## 2. Pre-Production Security Checklist
 
+```mermaid
+flowchart LR
+  S1["No Seed SQL"] --> S2["Strong Secrets"]
+  S2 --> S3["Zero Trust Access"]
+  S3 --> S4["Strict Provider"]
+  style S1 fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style S2 fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style S3 fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style S4 fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
+
 1. **Remove Demo Seed Data**:
    Do **not** apply `migrations/0002_seed.sql` to production D1. Only run `migrations/0001_init.sql` (or delete `0002_seed.sql` before running `wrangler d1 migrations apply --remote`).
 2. **Generate High-Entropy Secrets**:
@@ -47,6 +73,17 @@ Internal Apps, CI/CD, Support Tools, IDE Agents
 ---
 
 ## 3. Provisioning Cloudflare Infrastructure
+
+```mermaid
+flowchart LR
+  Wasm["TinyGo Wasm"] --> D1["D1 Create & Migrate"]
+  D1 --> Sec["Wrangler Secrets"]
+  Sec --> Dep["npm run deploy"]
+  style Wasm fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style D1 fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Sec fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style Dep fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
 
 ### 3.1 Build the TinyGo Wasm Bundle
 
@@ -121,6 +158,17 @@ npm run deploy
 
 ## 4. Onboarding Teams & Enforcing Policies
 
+```mermaid
+flowchart LR
+  Admin["POST /admin/teams"] --> Hash["SHA-256 Key"]
+  Hash --> Cap["Monthly Budget"]
+  Cap --> Pol["PII & Max Tier"]
+  style Admin fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Hash fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style Cap fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Pol fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
+
 Provision each department/application with its own key, budget, tier ceiling, and PII policy:
 
 ```bash
@@ -175,6 +223,17 @@ Call `POST /admin/teams` with the existing `team_id` and a new `api_key`. Only t
 ---
 
 ## 6. Auditing, Compliance & Operations
+
+```mermaid
+flowchart LR
+  Log["D1 audit_logs"] --> API["/admin/audit"]
+  Log --> Exp["wrangler d1 export"]
+  Exp --> Arch["R2 / S3 Archive"]
+  style Log fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style API fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style Exp fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Arch fill:#f3e8ff,stroke:#9333ea,color:#581c87
+```
 
 - **Live Telemetry**:
   - `GET /admin/summary` — organization-wide spend, token totals, PII detections, and blocked requests.

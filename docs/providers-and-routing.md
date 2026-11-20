@@ -4,6 +4,19 @@ The gateway supports **both** multi-protocol inbound clients (OpenAI, Anthropic,
 
 ## Supported Inbound SDK Protocols
 
+```mermaid
+flowchart LR
+  O["OpenAI SDK"] --> C["Canonical Request"]
+  A["Anthropic SDK"] --> C
+  G["Gemini SDK"] --> C
+  C --> P["Unified Pipeline"]
+  style O fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style A fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style G fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+  style C fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style P fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
+
 Teams do not need to rewrite existing code to adopt the gateway:
 
 | Inbound Endpoint | Compatible Clients | Team Auth Header |
@@ -18,6 +31,19 @@ Every inbound request is translated into a canonical internal format, passes thr
 
 ### Cloudflare Workers AI (Meta, DeepSeek, Qwen, Mistral)
 
+```mermaid
+flowchart LR
+  W["Worker env.AI"] --> F["fast: Llama 3.1 8B"]
+  W --> B["balanced: Llama 3.3 70B"]
+  W --> C["coder: Qwen 2.5 32B"]
+  W --> R["reasoning: DeepSeek R1"]
+  style W fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style F fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style B fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style C fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style R fill:#ffedd5,stroke:#ea580c,color:#7c2d12
+```
+
 Always available inside Cloudflare Workers via the `env.AI` binding (zero external API keys required):
 
 | Model ID | Aliases | Tier | Input / Output ($ per 1M tokens) |
@@ -30,6 +56,19 @@ Always available inside Cloudflare Workers via the `env.AI` binding (zero extern
 | `@cf/deepseek-ai/deepseek-r1-distill-qwen-32b` | `reasoning`, `deepseek-r1`, `r1` | `reasoning` | \$0.497 / \$4.881 |
 
 ### External Vendor Providers
+
+```mermaid
+flowchart LR
+  MP["MultiProvider"] --> A["Anthropic"]
+  MP --> G["Google Gemini"]
+  MP --> O["OpenAI / Grok / DeepSeek"]
+  MP --> Q["Qwen / Mistral / Ollama"]
+  style MP fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style A fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style G fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+  style O fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Q fill:#fef9c3,stroke:#ca8a04,color:#713f12
+```
 
 Configure any combination of vendor keys as Worker secrets (or environment variables in local mode):
 
@@ -45,6 +84,23 @@ Configure any combination of vendor keys as Worker secrets (or environment varia
 | **Custom OpenAI-Compat** | `UPSTREAM_BASE_URL` (optional `UPSTREAM_API_KEY`) | Any custom model ID (Ollama, vLLM, OpenRouter, LiteLLM) | OpenAI-compatible |
 
 ## Intelligent Routing & Fallback Rules
+
+```mermaid
+flowchart TD
+  Auto["model: auto"] --> Code["Code / SQL -> coder"]
+  Auto --> Long["Long / Reason -> reasoning"]
+  Auto --> Short["Short -> fast"]
+  Code --> Clamp["Clamp to max_tier"]
+  Long --> Clamp
+  Short --> Clamp
+  Clamp --> FB["Fallback Chain"]
+  style Auto fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Code fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style Long fill:#ffedd5,stroke:#ea580c,color:#7c2d12
+  style Short fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+  style Clamp fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style FB fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
 
 1. **Automatic Routing (`model: "auto"` or empty)**:
    - `route_hint: "cost"` or `"latency"` (or header `X-Gateway-Route: cost|latency`) selects `fast`.

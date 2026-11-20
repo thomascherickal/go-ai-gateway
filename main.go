@@ -8,4 +8,3 @@ func main() {
 	gw := buildGateway()
 	workers.Serve(gw)
 }
-

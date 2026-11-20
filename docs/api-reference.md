@@ -2,6 +2,19 @@
 
 ## Inference Endpoints
 
+```mermaid
+flowchart LR
+  OAI["/v1/chat/completions"] --> Pipe["Gateway Pipeline"]
+  ANT["/v1/messages"] --> Pipe
+  GEM["/v1beta/models/..."] --> Pipe
+  Pipe --> Resp["Native Schema + Headers"]
+  style OAI fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style ANT fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style GEM fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+  style Pipe fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style Resp fill:#fef9c3,stroke:#ca8a04,color:#713f12
+```
+
 ### 1. OpenAI Chat Completions — `POST /v1/chat/completions`
 
 **Headers**:
@@ -57,6 +70,17 @@ print(resp.choices[0].message.content)
 
 ### 2. Anthropic Messages API — `POST /v1/messages` & `POST /v1/messages/count_tokens`
 
+```mermaid
+flowchart LR
+  CC["Claude Code / SDK"] --> Ant["POST /v1/messages"]
+  Ant --> SSE["SSE & Tool Calls"]
+  Ant --> Cnt["count_tokens"]
+  style CC fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style Ant fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style SSE fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style Cnt fill:#fef9c3,stroke:#ca8a04,color:#713f12
+```
+
 Compatible with **Claude Code** (`ANTHROPIC_BASE_URL`) and Anthropic SDK clients (supports `stream: true` SSE, `tools` / `tool_use` / `tool_result`, and `count_tokens`).
 
 ```bash
@@ -92,6 +116,17 @@ print(msg.content[0].text)
 
 ### 3. Google Gemini API — `POST /v1beta/models/{model}:generateContent` & `:streamGenerateContent`
 
+```mermaid
+flowchart LR
+  AGY["Antigravity / GenAI"] --> Gem[":generateContent"]
+  Gem --> Fn["functionDeclarations"]
+  Gem --> Str["?alt=sse Stream"]
+  style AGY fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+  style Gem fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Fn fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style Str fill:#fef9c3,stroke:#ca8a04,color:#713f12
+```
+
 Also available at `/v1/models/{model}:generateContent` and `GET /v1beta/models`. Compatible with **Google Antigravity CLI/SDK** (`GOOGLE_GEMINI_BASE_URL`), Gemini CLI, and Google GenAI SDKs (supports SSE `?alt=sse` and `functionDeclarations` tool calling). Accepts team API key in `x-goog-api-key`, `Authorization: Bearer`, `X-Team-Key`, or `?key=`.
 
 ```bash
@@ -115,6 +150,19 @@ curl -s http://localhost:9900/v1beta/models/gemini-2.5-flash:generateContent \
 ---
 
 ## Admin Control-Plane Endpoints
+
+```mermaid
+flowchart LR
+  Tok["ADMIN_TOKEN"] --> T["/admin/teams"]
+  Tok --> A["/admin/audit"]
+  Tok --> S["/admin/summary"]
+  Tok --> P["/admin/providers"]
+  style Tok fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style T fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style A fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style S fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style P fill:#fef9c3,stroke:#ca8a04,color:#713f12
+```
 
 All `/admin/*` endpoints require `Authorization: Bearer <ADMIN_TOKEN>` or `X-Admin-Token: <ADMIN_TOKEN>`.
 

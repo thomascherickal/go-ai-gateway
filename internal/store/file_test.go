@@ -61,4 +61,3 @@ func TestFileStorePersistenceAcrossReload(t *testing.T) {
 		t.Fatalf("unexpected reloaded audits: %+v, err=%v", audits, err)
 	}
 }
-

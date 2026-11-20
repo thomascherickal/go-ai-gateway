@@ -65,4 +65,3 @@ func loadSingleEnvFile(path string) error {
 	}
 	return scanner.Err()
 }
-

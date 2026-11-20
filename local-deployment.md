@@ -6,6 +6,19 @@ Run and demonstrate every feature of **Go AI Gateway** on a local machine in und
 
 ## Mode 1: Zero-Config Instant Demo (Recommended for First Run)
 
+```mermaid
+flowchart LR
+  Cmd["go run ."] --> GW["localhost:9900"]
+  GW --> T1["platform (redact)"]
+  GW --> T2["support (block)"]
+  GW --> T3["sandbox (fast)"]
+  style Cmd fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style GW fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style T1 fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style T2 fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style T3 fill:#fef9c3,stroke:#ca8a04,color:#713f12
+```
+
 If you want to run a live demo immediately using the built-in mock multi-vendor provider and pre-seeded demo teams (`platform`, `support`, `sandbox`):
 
 ```bash
@@ -27,6 +40,19 @@ Open **`http://localhost:9900/`** in your browser, enter `gw_admin_dev` in the *
 
 ## Mode 2: Local Demo with Real AI Keys, Ollama & Persistent State (`.env`)
 
+```mermaid
+flowchart LR
+  Env[".env Keys"] --> GW["Local Gateway"]
+  GW --> Cloud["Live AI Vendors"]
+  GW --> Loc["Ollama Local"]
+  GW --> File["state.json"]
+  style Env fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style GW fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style Cloud fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Loc fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+  style File fill:#f3e8ff,stroke:#9333ea,color:#581c87
+```
+
 To demonstrate live inference against Anthropic, Gemini, Grok, DeepSeek, Qwen, OpenAI, or local **Ollama** on your machine:
 
 1. Create `.env` from [.env.example](.env.example):
@@ -46,6 +72,17 @@ To demonstrate live inference against Anthropic, Gemini, Grok, DeepSeek, Qwen, O
 ---
 
 ## Mode 3: Local Cloudflare Workers / Pages Wasm Simulator (Miniflare + D1)
+
+```mermaid
+flowchart LR
+  Wasm["TinyGo Wasm"] --> MF["Miniflare :8787"]
+  MF --> D1["Local D1 SQLite"]
+  MF --> Pages["Pages Dev :8788"]
+  style Wasm fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style MF fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style D1 fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Pages fill:#f3e8ff,stroke:#9333ea,color:#581c87
+```
 
 To demonstrate the **exact TinyGo WebAssembly binary** and **local Cloudflare D1 SQLite** before deploying to Cloudflare:
 
@@ -76,6 +113,17 @@ curl -s http://localhost:9900/v1/models | jq '.data | length, .[0:5]'
 ```
 
 ### 2. Automatic Personal-Data & Secret Redaction (`platform` team)
+
+```mermaid
+flowchart LR
+  In["Prompt + PII"] --> Scan["PII Scanner"]
+  Scan --> Red["[REDACTED_*]"]
+  Red --> LLM["Upstream Model"]
+  style In fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style Scan fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Red fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style LLM fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+```
 
 ```bash
 curl -s http://localhost:9900/v1/chat/completions \
@@ -149,6 +197,17 @@ curl -s http://localhost:9900/v1beta/models/gemini-2.5-flash:generateContent \
 ```
 
 ### 6. Per-Team Budget Exhaustion (`HTTP 429`)
+
+```mermaid
+flowchart LR
+  Req["Request"] --> Res["Reserve Budget"]
+  Res -- "OK" --> Call["200 OK"]
+  Res -- "Exceeded" --> Block["429 Quota"]
+  style Req fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Res fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Call fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style Block fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+```
 
 Create a tiny `$0.0005` (`500` micro-dollar) demo team and trigger a `429 insufficient_quota` block:
 

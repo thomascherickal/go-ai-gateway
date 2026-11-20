@@ -40,4 +40,3 @@ EXISTING_VAR=from_file
 		t.Fatalf("existing env var was overwritten: %q", got)
 	}
 }
-

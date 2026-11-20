@@ -6,6 +6,17 @@ Use this guide to let **Claude Desktop** handle building, configuring, and deplo
 
 ## 1. Prerequisites for Claude Desktop
 
+```mermaid
+flowchart LR
+  CD["Claude Desktop"] --> MCP["MCP Shell / FS"]
+  MCP --> Sh["deploy-cloudflare.sh"]
+  Sh --> CF["Cloudflare Edge"]
+  style CD fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style MCP fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Sh fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style CF fill:#ffedd5,stroke:#ea580c,color:#7c2d12
+```
+
 Claude Desktop needs tool access to your local workspace and shell (via MCP servers) to run `deploy-cloudflare.sh` and `wrangler`.
 
 ### Recommended `claude_desktop_config.json` Setup
@@ -32,6 +43,17 @@ Add a filesystem/terminal MCP server scoped to your `go-ai-gateway` directory (p
 ---
 
 ## 2. Project Instructions for Claude Desktop
+
+```mermaid
+flowchart LR
+  Test["go test + wasm"] --> Dry["--dry-run"]
+  Dry --> Dep["Deploy Live"]
+  Dep --> Ver["Verify /healthz"]
+  style Test fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Dry fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Dep fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style Ver fill:#f3e8ff,stroke:#9333ea,color:#581c87
+```
 
 Create a Claude Desktop **Project** for `go-ai-gateway` and paste the block below into the Project's **Custom Instructions**:
 
@@ -75,6 +97,17 @@ Once your `.env` file is saved on disk and `npx wrangler login` is completed, se
 
 ## 4. What Claude Desktop Should Check If Any Step Fails
 
+```mermaid
+flowchart TD
+  Err["Deploy Failure"] --> T["Check TinyGo >= 0.42"]
+  Err --> A["Check wrangler whoami"]
+  Err --> D["Check D1 & Secrets"]
+  style Err fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style T fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style A fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style D fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
+
 | Symptom | Cause | Resolution for Claude Desktop |
 | --- | --- | --- |
 | `tinygo: command not found` or TinyGo `< 0.42` | TinyGo missing or outdated (TinyGo `< 0.42` cannot compile `net/http` to Wasm) | Ask user to install TinyGo `0.42+` (e.g. `0.44.0`) and re-run `make build-wasm` |
@@ -86,6 +119,17 @@ Once your `.env` file is saved on disk and `npx wrangler login` is completed, se
 ---
 
 ## 5. Manual Step-by-Step Alternative (If Claude Desktop Has Cloudflare MCP Only, No Local Shell)
+
+```mermaid
+flowchart LR
+  Loc["make build-wasm"] --> CFMCP["Cloudflare MCP"]
+  CFMCP --> D1["Apply D1 SQL"]
+  CFMCP --> Aud["Inspect Tables"]
+  style Loc fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style CFMCP fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style D1 fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Aud fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
 
 If your Claude Desktop only has the **Cloudflare MCP** (and no local shell MCP):
 1. Run `make build-wasm` locally to produce `./build/`.

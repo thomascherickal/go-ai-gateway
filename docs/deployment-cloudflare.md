@@ -11,6 +11,18 @@
 
 ## 1. Install Node Dependencies & Build TinyGo Wasm
 
+```mermaid
+flowchart LR
+  Go["Go Source"] --> Gen["workers-assets-gen"]
+  Go --> TG["TinyGo Wasm"]
+  Gen --> Build["./build/"]
+  TG --> Build
+  style Go fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Gen fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style TG fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Build fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
+
 ```bash
 npm install
 make build-wasm
@@ -52,6 +64,17 @@ npm run db:migrate:remote
 > **Production Security Note**: Before migrating remote production D1, remove or replace the demo keys in `migrations/0002_seed.sql` and provision real team API keys via `POST /admin/teams`.
 
 ## 3. Configure Secrets
+
+```mermaid
+flowchart LR
+  D1["D1 Migrations"] --> Sec["wrangler secret put"]
+  Sec --> Dev["npm run dev"]
+  Sec --> Dep["npm run deploy"]
+  style D1 fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Sec fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style Dev fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Dep fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
 
 For local `wrangler dev`, copy `.dev.vars.example` to `.dev.vars`:
 

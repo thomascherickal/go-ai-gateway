@@ -42,4 +42,3 @@ func EstimateReserveMicros(spec ModelSpec, promptTokens, requestedMaxTokens int)
 	}
 	return ComputeCostMicros(spec, promptTokens, maxOut)
 }
-

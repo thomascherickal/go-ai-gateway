@@ -34,4 +34,3 @@ func (p *MockProvider) Chat(ctx context.Context, model router.ModelSpec, req typ
 		Usage:        ensureUsage(types.Usage{}, req.Messages, reply),
 	}, nil
 }
-

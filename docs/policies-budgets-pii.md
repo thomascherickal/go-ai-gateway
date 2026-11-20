@@ -6,6 +6,21 @@ All monetary values are stored and calculated in **integer micro-dollars** (`1 U
 
 ### Budget Lifecycle
 
+```mermaid
+flowchart LR
+  Roll["UTC Rollover"] --> Res["Atomic Reserve"]
+  Res -- "OK" --> Call["Upstream Call"]
+  Res -- "Cap" --> E429["429 Quota"]
+  Call -- "OK" --> Rec["Reconcile Delta"]
+  Call -- "Err" --> Ref["100% Refund"]
+  style Roll fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Res fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Call fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style E429 fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style Rec fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style Ref fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+```
+
 1. **Monthly Window (`period_ym`)**:
    - Each team has a `monthly_limit_micros`, `spent_micros`, and `period_ym` (`YYYY-MM` in UTC).
    - When a request arrives in a new UTC month, `spent_micros` automatically rolls over to `0` and `period_ym` updates to the current month.
@@ -27,6 +42,19 @@ All monetary values are stored and calculated in **integer micro-dollars** (`1 U
    - If all upstream candidates fail, `-reserve_micros` is refunded so failed requests never consume team quota.
 
 ## Personal-Data (PII) & Secret Protection
+
+```mermaid
+flowchart LR
+  Msg["Messages"] --> Scan["Regex + Luhn"]
+  Scan --> R["redact: [REDACTED]"]
+  Scan --> B["block: HTTP 400"]
+  Scan --> A["audit_only: Log"]
+  style Msg fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Scan fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style R fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style B fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style A fill:#f3e8ff,stroke:#9333ea,color:#581c87
+```
 
 Every message is scanned by `internal/redact` **before** any model call or external HTTP request occurs.
 
@@ -51,6 +79,18 @@ Placeholders are deduplicated per request session: if `alice@acme.com` appears t
 - **`audit_only`**: Records finding counts and types in the audit log without mutating the prompt.
 
 ## Audit Log Guarantees
+
+```mermaid
+flowchart LR
+  Ev["Every Request"] --> Hash["SHA-256 Prompt"]
+  Ev --> Cnt["PII Counts Only"]
+  Hash --> D1["audit_logs Table"]
+  Cnt --> D1
+  style Ev fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Hash fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style Cnt fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style D1 fill:#dcfce7,stroke:#16a34a,color:#14532d
+```
 
 Every request—including `unauthorized`, `blocked_budget`, `blocked_pii`, `blocked_policy`, `upstream_error`, and `ok`—produces an entry in `audit_logs` containing:
 

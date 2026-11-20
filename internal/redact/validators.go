@@ -63,4 +63,3 @@ func isValidIPv4(s string) bool {
 	}
 	return true
 }
-

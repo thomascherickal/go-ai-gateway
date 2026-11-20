@@ -75,4 +75,3 @@ func (p *WorkersAIRESTProvider) Chat(ctx context.Context, model router.ModelSpec
 		Usage:        ensureUsage(u, req.Messages, envelope.Result.Response),
 	}, nil
 }
-

@@ -4,6 +4,23 @@ The **Go AI Gateway** sits between every internal tool (CLIs, CI bots, backend s
 
 ## Request Lifecycle
 
+```mermaid
+flowchart TD
+  In["Inbound SDK"] --> Auth["Team Auth (SHA-256)"]
+  Auth --> PII["PII Redaction"]
+  PII --> RT["Model Router"]
+  RT --> Bud["Atomic D1 Budget"]
+  Bud --> Prov["Multi-Provider"]
+  Prov --> Aud["Reconcile & Audit"]
+  style In fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Auth fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style PII fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style RT fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+  style Bud fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Prov fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style Aud fill:#ffedd5,stroke:#ea580c,color:#7c2d12
+```
+
 ```
 Internal Tool (OpenAI SDK / Anthropic SDK / Gemini SDK / curl)
    │
@@ -55,6 +72,21 @@ Internal Tool (OpenAI SDK / Anthropic SDK / Gemini SDK / curl)
 
 ## Package Structure
 
+```mermaid
+flowchart LR
+  Main["main.go"] --> GW["internal/gateway"]
+  GW --> Red["internal/redact"]
+  GW --> Rt["internal/router"]
+  GW --> St["internal/store"]
+  GW --> Pr["internal/provider"]
+  style Main fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style GW fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style Red fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  style Rt fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style St fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style Pr fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+```
+
 | Package | Responsibility |
 | --- | --- |
 | `main.go` | Entrypoint calling `workers.Serve(gw)` (runs on Workers Wasm or local `net/http`) |
@@ -68,6 +100,19 @@ Internal Tool (OpenAI SDK / Anthropic SDK / Gemini SDK / curl)
 | `internal/gateway` | HTTP mux, inbound adapters, control-plane pipeline, Admin API, embedded dashboard |
 
 ## TinyGo & Cloudflare Workers Runtime Design
+
+```mermaid
+flowchart LR
+  Fetch["fetch(req, env)"] --> Ctx["Per-Request Ctx"]
+  Ctx --> D1["Lazy D1 Open"]
+  Ctx --> AI["env.AI Binding"]
+  Ctx --> Sec["Getenv Secrets"]
+  style Fetch fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+  style Ctx fill:#dcfce7,stroke:#16a34a,color:#14532d
+  style D1 fill:#fef9c3,stroke:#ca8a04,color:#713f12
+  style AI fill:#f3e8ff,stroke:#9333ea,color:#581c87
+  style Sec fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+```
 
 Running Go on Cloudflare Workers via **TinyGo** (`-target wasm`) and `github.com/syumai/workers-go` imposes two important runtime constraints that shape this codebase:
 
